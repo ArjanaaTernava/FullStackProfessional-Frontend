@@ -1,70 +1,58 @@
-import UserProfile from "./UserProfile";
-import { useState, useEffect } from "react";
-
-const users = [
-    {
-    name: "Jamila",
-    age: 22,
-    gender: "FEMALE"
-    },
-    {
-    name: "Marco",
-    age: 35,
-    gender: "MALE",
-    },
-    {name: "Nesa",
-    age: 22,
-    gender: "FEMALE"
-    }, 
-    {
-    name: "Ana",
-    age: 32,
-    gender: "FEMALE"
-    },
-    {
-        name: "Alex",
-    age: 18,
-    gender: "MALE"
-    },
-    {name: "Alexa",
-    age: 42,
-    gender: "FEMALE"
-    }  
-]
-
-const UserProfiles = ({users}) => (
-    <div>
-    {
-       users.map((user,index) => 
-       <UserProfile name={user.name} age={user.age} gender={user.gender} imageNumber={index}/>)
-    }
-   </div>
-)
+import { Wrap, WrapItem, Spinner, Text } from "@chakra-ui/react";
+import SidebarWithHeader from "../components/shared/SideBar";
+import { useEffect, useState } from "react";
+import { getCustomers } from "../components/shared/Client";
+import CardWithImage from "../components/Card";
 
 function App() {
+	const [customers, setCustomers] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
 
-const [counter,setCounter] = useState(0);
-const [isLoading,setLoading] = useState(false);
+	useEffect(() => {
+		setIsLoading(true);
+		getCustomers()
+			.then((res) => {
+				setCustomers(res.data);
+			})
+			.catch((err) => console.error(err))
+			.finally(() => {
+				setIsLoading(false);
+			});
+	}, []);
 
-useEffect(() => {
-    setLoading(true);
-   setTimeout(() => {
-        setLoading(false)
-   }, 2000);
-},[]); //array of dependencies
+	if (isLoading) {
+		return (
+			<SidebarWithHeader>
+				<Spinner
+					thickness="4px"
+					speed="0.65s"
+					emptyColor="gray.200"
+					color="blue.500"
+					size="xl"
+				/>
+			</SidebarWithHeader>
+		);
+	}
 
-if(isLoading) {
-    return <h1>Loading...</h1>
+	if (customers.length <= 0) {
+		return (
+			<SidebarWithHeader>
+				<Text>No customers found</Text>
+			</SidebarWithHeader>
+		);
+	}
+
+	return (
+		<SidebarWithHeader>
+			<Wrap justify={"center"} spacing={"30px"}>
+				{customers.map((customer, index) => (
+					<WrapItem key={index}>
+                        <CardWithImage {...customer} />
+                    </WrapItem>
+				))}
+			</Wrap>
+		</SidebarWithHeader>
+	);
 }
 
- return (
-    <div>
-        <h1>{counter}</h1>
-        <button onClick={() => setCounter(counter - 1)}>Increment</button>
-        <UserProfiles users={users}></UserProfiles>
-    </div>
- )
-
-}
-
-export default App
+export default App;
