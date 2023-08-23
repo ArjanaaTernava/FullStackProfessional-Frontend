@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getCustomers } from "./services/Client";
 import { errorNotification } from "./services/Notification";
 import CardWithImage from "../components/Card";
-import DrawerForm from "../components/DrawerForm";
+import CreateCustomerDrawer from "../components/CreateCustomerDrawer";
 
 function App() {
 	const [customers, setCustomers] = useState([]);
@@ -47,7 +47,7 @@ function App() {
 	if(error){
 		return (
 			<SidebarWithHeader>
-				<DrawerForm fetchCustomers={fetchCustomers} />
+				<CreateCustomerDrawer fetchCustomers={fetchCustomers} />
 				<Text mt={5}>Opps there was an error</Text>
 			</SidebarWithHeader>
 		);
@@ -56,7 +56,7 @@ function App() {
 	if (customers.length <= 0) {
 		return (
 			<SidebarWithHeader>
-				<DrawerForm fetchCustomers={fetchCustomers} />
+				<CreateCustomerDrawer fetchCustomers={fetchCustomers} />
 				<Text mt={5}>No customers found</Text>
 			</SidebarWithHeader>
 		);
@@ -64,7 +64,7 @@ function App() {
 
 	return (
 		<SidebarWithHeader>
-			<DrawerForm fetchCustomers={fetchCustomers} />
+			<CreateCustomerDrawer fetchCustomers={fetchCustomers} />
 			<Wrap justify={"center"} spacing={"30px"}>
 				{customers.map((customer, index) => (
 					<WrapItem key={index}>

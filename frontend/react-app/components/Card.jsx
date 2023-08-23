@@ -21,6 +21,7 @@ import {
 import {useRef} from 'react';
 import { deleteCustomer } from '../src/services/Client';
 import { errorNotification, successNotification } from '../src/services/Notification';
+import UpdateCustomerDrawer from './UpdateCustomerDrawer';
 
 export default function CardWithImage({id,name,email, age,gender, imageNumber, fetchCustomers}) {
   const randomUserGender = gender == "MALE" ? "men" : "women";
@@ -30,11 +31,14 @@ export default function CardWithImage({id,name,email, age,gender, imageNumber, f
     <Center py={6}>
       <Box
         maxW={'300px'}
+        minW={'300px'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.800')}
-        boxShadow={'2xl'}
+        boxShadow={'lg'}
         rounded={'md'}
-        overflow={'hidden'}>
+        overflow={'hidden'}
+        m={2}
+        pb={2}>
         <Image
           h={'120px'}
           w={'full'}
@@ -64,9 +68,20 @@ export default function CardWithImage({id,name,email, age,gender, imageNumber, f
             </Heading>
             <Text color={'gray.500'}>Email: {email}</Text>
             <Text color={'gray.500'}>Age: {age} | {gender}</Text>
-            <Stack m={8}>
+           
+          </Stack>
+        </Box>
+        <Stack direction={'row'} justify={'center'} spacing={6}>
+          <Stack>
+            //to do
+            <UpdateCustomerDrawer 
+            customerId={id}
+            fetchCustomers={fetchCustomers}
+            initialValues={{name,email,age}}/>
+          </Stack>
+          <Stack>
               <Button onClick={onOpen} rounded={"full"} color={"white"}
-               mt={8} bg={"red.400"}
+              bg={"red.400"}
                _hover={{
                 transform: 'translateY(-2px)',
                 boxShadow: 'lg'
@@ -116,7 +131,6 @@ export default function CardWithImage({id,name,email, age,gender, imageNumber, f
       </AlertDialog>
             </Stack>
           </Stack>
-        </Box>
       </Box>
     </Center>
   )
