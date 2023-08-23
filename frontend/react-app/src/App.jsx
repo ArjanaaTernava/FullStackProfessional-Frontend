@@ -1,23 +1,33 @@
 import { Wrap, WrapItem, Spinner, Text } from "@chakra-ui/react";
 import SidebarWithHeader from "../components/shared/SideBar";
 import { useEffect, useState } from "react";
-import { getCustomers } from "../components/shared/Client";
+import { getCustomers } from "./services/Client";
+import { errorNotification } from "./services/Notification";
 import CardWithImage from "../components/Card";
+import DrawerForm from "../components/DrawerForm";
 
 function App() {
 	const [customers, setCustomers] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState("");
 
-	useEffect(() => {
+	const fetchCustomers = () => {
 		setIsLoading(true);
 		getCustomers()
 			.then((res) => {
 				setCustomers(res.data);
 			})
-			.catch((err) => console.error(err))
+			.catch((err) => {
+				setError(err.response.data.message);
+				errorNotification(err.code, err.response.data.message);
+			})
 			.finally(() => {
 				setIsLoading(false);
 			});
+	};
+
+	useEffect(() => {
+		fetchCustomers();
 	}, []);
 
 	if (isLoading) {
@@ -34,21 +44,33 @@ function App() {
 		);
 	}
 
+	if(error){
+		return (
+			<SidebarWithHeader>
+				<DrawerForm fetchCustomers={fetchCustomers} />
+				<Text mt={5}>Opps there was an error</Text>
+			</SidebarWithHeader>
+		);
+	}
+
 	if (customers.length <= 0) {
 		return (
 			<SidebarWithHeader>
-				<Text>No customers found</Text>
+				<DrawerForm fetchCustomers={fetchCustomers} />
+				<Text mt={5}>No customers found</Text>
 			</SidebarWithHeader>
 		);
 	}
 
 	return (
 		<SidebarWithHeader>
+			<DrawerForm fetchCustomers={fetchCustomers} />
 			<Wrap justify={"center"} spacing={"30px"}>
 				{customers.map((customer, index) => (
 					<WrapItem key={index}>
-                        <CardWithImage {...customer} />
-                    </WrapItem>
+						<CardWithImage {...customer} imageNumber={index} 
+						fetchCustomers={fetchCustomers}/>
+					</WrapItem>
 				))}
 			</Wrap>
 		</SidebarWithHeader>

@@ -1,5 +1,3 @@
-'use client'
-
 import {
   Heading,
   Avatar,
@@ -11,10 +9,23 @@ import {
   Stack,
   Button,
   useColorModeValue,
-  Tag
+  Tag, useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    AlertDialogContent,
 } from '@chakra-ui/react'
 
-export default function CardWithImage({id,name,email, age}) {
+import {useRef} from 'react';
+import { deleteCustomer } from '../src/services/Client';
+import { errorNotification, successNotification } from '../src/services/Notification';
+
+export default function CardWithImage({id,name,email, age,gender, imageNumber, fetchCustomers}) {
+  const randomUserGender = gender == "MALE" ? "men" : "women";
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const cancelRef = useRef()
   return (
     <Center py={6}>
       <Box
@@ -37,7 +48,7 @@ export default function CardWithImage({id,name,email, age}) {
           <Avatar
             size={'xl'}
             src={
-              'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ'
+              `https://randomuser.me/api/portraits/${randomUserGender}/${imageNumber}.jpg`
             }
             css={{
               border: '2px solid white',
@@ -52,7 +63,58 @@ export default function CardWithImage({id,name,email, age}) {
               {name}
             </Heading>
             <Text color={'gray.500'}>Email: {email}</Text>
-            <Text color={'black.500'}>Age: {age}</Text>
+            <Text color={'gray.500'}>Age: {age} | {gender}</Text>
+            <Stack m={8}>
+              <Button onClick={onOpen} rounded={"full"} color={"white"}
+               mt={8} bg={"red.400"}
+               _hover={{
+                transform: 'translateY(-2px)',
+                boxShadow: 'lg'
+               }}
+               _focus={
+                {
+                  bg:'grey.500'
+                }
+               }>
+                Delete
+              </Button>
+              <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Delete Customer
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete {name}? You can't undo this action afterwards.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button colorScheme='red' onClick={()=>{
+                deleteCustomer(id).then((res)=>{
+                  successNotification("Customer deleted",`${name} was successfully deleted`);
+                  fetchCustomers();
+                }).catch((error)=>{
+                  errorNotification(err.code,
+                    err.response.data.message);
+                 }).finally(()=>{
+                  onClose();
+                 })
+              }} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+            </Stack>
           </Stack>
         </Box>
       </Box>
